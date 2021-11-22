@@ -91,8 +91,8 @@ port 443
 proto tcp
 dev tun
 dev-type tun
-sndbuf 100000
-rcvbuf 100000
+sndbuf 0
+rcvbuf 0
 crl-verify crl.pem
 ca ca.crt
 cert server.crt
@@ -532,6 +532,7 @@ cat <<EOF152> /home/vps/public_html/tcp.ovpn
 # Credits to Gakod Memgganas
 client
 dev tun
+proto tcp
 setenv FRIENDLY_NAME "I'M MASTA GAKOD"
 remote $MYIP:443@devvault.digi.com.my
 http-proxy $MYIP 8080
