@@ -81,6 +81,8 @@ wget -O /etc/nginx/conf.d/vps.conf "https://raw.githubusercontent.com/ara-ranger
 sed -i 's/listen = \/var\/run\/php7.0-fpm.sock/listen = 127.0.0.1:9000/g' /etc/php/7.0/fpm/pool.d/www.conf
 service php7.0-fpm restart
 
+apt-get -y install openvpn
+cd /etc/openvpn/ 
  # Creating server.conf, ca.crt, server.crt and server.key
  cat <<'myOpenVPNconf1' > /etc/openvpn/servertcp.conf
 # GakodScript
