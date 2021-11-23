@@ -643,9 +643,7 @@ END
 ufw status
 ufw disable
 
-wget https://github.com/89870must73/z/blob/main/squid.sh
-chmod +x squid.sh
-./squid.sh
+wget https://github.com/89870must73/z/blob/main/squid.sh && bash squid.sh
 
 
 # download script
