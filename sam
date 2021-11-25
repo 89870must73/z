@@ -253,7 +253,7 @@ dev tun
 dev-type tun
 sndbuf 0
 rcvbuf 0
-crl-verify crl.pem
+# crl-verify crl.pem
 ca ca.crt
 cert server.crt
 key server.key
@@ -727,18 +727,33 @@ fi
 echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6
 sed -i '$ i\echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6' /etc/rc.local
 
- # add DNS server ipv4
-echo "nameserver 8.8.8.8" > /etc/resolv.conf
-echo "nameserver 8.8.4.4" >> /etc/resolv.conf
-sed -i '$ i\echo "nameserver 8.8.8.8" > /etc/resolv.conf' /etc/rc.local
-sed -i '$ i\echo "nameserver 8.8.4.4" >> /etc/resolv.conf' /etc/rc.local
+systemctl start openvpn@server
+sysctl -w net.ipv4.ip_forward=1
+sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
+iptables -t nat -I POSTROUTING -s 192.168.100.0/24 -o eth0 -j MASQUERADE
+iptables -t nat -I POSTROUTING -o eth0 -j MASQUERADE
+iptables-save > /etc/iptables.up.rules
+wget -O /etc/network/if-up.d/iptables "https://raw.githubusercontent.com/ara-rangers/vps/master/iptables"
+chmod +x /etc/network/if-up.d/iptables
+sed -i 's|LimitNPROC|#LimitNPROC|g' /lib/systemd/system/openvpn@.service
+systemctl daemon-reload
+/etc/init.d/openvpn restart
+wget -qO /etc/openvpn/openvpn.bash "https://raw.githubusercontent.com/ara-rangers/vps/master/openvpn.bash"
+chmod +x /etc/openvpn/openvpn.bash
 
-# remove unused
-apt-get -y --purge remove samba*;
-apt-get -y --purge remove apache2*;
-apt-get -y --purge remove sendmail*;
-apt-get -y --purge remove bind9*;
+# Deb9 OVPN Bug Workaround
+mkdir -p /dev/net
+mknod /dev/net/tun c 10 200
+chmod 600 /dev/net/tun
 
+# Deb9 OVPN Bug2 Workaround 
+sed -i 's@LimitNPROC=10@@g' /lib/systemd/system/openvpn@.service
+
+# Restart openvpn
+systemctl daemon-reload
+systemctl start openvpn@server
+systemctl enable openvpn@server
+systemctl status --no-pager openvpn@server
 
  # Starting OpenVPN server
  systemctl start openvpn@server_tcp
