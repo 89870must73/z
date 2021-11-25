@@ -250,30 +250,31 @@ function InsOpenVPN(){
 port OVPNTCP
 proto tcp
 dev tun
-user nobody
-group nogroup
-persist-key
-persist-tun
-keepalive 10 120
+dev-type tun
+sndbuf 0
+rcvbuf 0
+crl-verify crl.pem
+ca ca.crt
+cert server.crt
+key server.key
+tls-auth tls-auth.key 0
+dh dh.pem
 topology subnet
 server 10.9.0.0 255.255.255.0
 ifconfig-pool-persist ipp.txt
-push "dhcp-option DNS 1.0.0.1"
-push "dhcp-option DNS 1.1.1.1"
-push "redirect-gateway def1 bypass-dhcp" 
-# crl-verify crl.pem
-ca ca.crt
-cert server_ADBtkp0yL46HLXPb.crt
-key server_ADBtkp0yL46HLXPb.key
-tls-auth tls-auth.key 0
-dh dh.pem
+push "redirect-gateway def1 bypass-dhcp"
+push "dhcp-option DNS 8.8.8.8"
+push "dhcp-option DNS 8.8.4.4"
+keepalive 10 120
+cipher AES-256-CBC
 auth SHA256
-cipher AES-128-CBC
-tls-server
-tls-version-min 1.2
-tls-cipher TLS-DHE-RSA-WITH-AES-128-GCM-SHA256
-status openvpn.log
-verb 3
+comp-lzo
+user nobody
+group nogroup
+persist-tun
+status openvpn-status.log
+verb 2
+mute 3
 plugin /etc/openvpn/openvpn-auth-pam.so /etc/pam.d/login
 username-as-common-name
 myOpenVPNconf
@@ -283,31 +284,33 @@ cat <<'myOpenVPNconf2' > /etc/openvpn/server_udp.conf
 port OVPNUDP
 proto udp
 dev tun
-user nobody
-group nogroup
-persist-key
-persist-tun
-keepalive 10 120
-topology subnet
-server 10.8.0.0 255.255.255.0
-ifconfig-pool-persist ipp.txt
-push "dhcp-option DNS 1.0.0.1"
-push "dhcp-option DNS 1.1.1.1"
-push "redirect-gateway def1 bypass-dhcp" 
+dev-type tun
+sndbuf 0
+rcvbuf 0
 crl-verify crl.pem
 ca ca.crt
-cert server_ADBtkp0yL46HLXPb.crt
-key server_ADBtkp0yL46HLXPb.key
+cert server.crt
+key server.key
 tls-auth tls-auth.key 0
 dh dh.pem
+topology subnet
+server 10.9.0.0 255.255.255.0
+ifconfig-pool-persist ipp.txt
+push "redirect-gateway def1 bypass-dhcp"
+push "dhcp-option DNS 8.8.8.8"
+push "dhcp-option DNS 8.8.4.4"
+keepalive 10 120
+cipher AES-256-CBC
 auth SHA256
-cipher AES-128-CBC
-tls-server
-tls-version-min 1.2
-tls-cipher TLS-DHE-RSA-WITH-AES-128-GCM-SHA256
-status openvpn.log
-verb 3
+comp-lzo
+user nobody
+group nogroup
+persist-tun
+status openvpn-status.log
+verb 2
+mute 3
 plugin /etc/openvpn/openvpn-auth-pam.so /etc/pam.d/login
+verify-client-cert none
 username-as-common-name
 myOpenVPNconf2
 
@@ -506,7 +509,7 @@ e6d7b99a22b84f1620d7c94af927c8bb
 29b8d1b0a13e173b68e3b835c46a4a38
 -----END OpenVPN Static key V1-----
 EOF18
- cat <<'EOF107'> /etc/openvpn/server_ADBtkp0yL46HLXPb.crt
+ cat <<'EOF107'> /etc/openvpn/server.crt
 Certificate:
     Data:
         Version: 3 (0x2)
@@ -616,7 +619,7 @@ DArv9YRvRWFYO1MWiuX9YjflHQ0AtwpHL+j24N90zJdOGgIctW1GScj52sQVO7JN
 +bd2FBJbzKqL8e7WiMj0D/RL
 -----END CERTIFICATE-----
 EOF107
- cat <<'EOF113'> /etc/openvpn/server_ADBtkp0yL46HLXPb.key
+ cat <<'EOF113'> /etc/openvpn/server.key
 -----BEGIN PRIVATE KEY-----
 MIIG/wIBADANBgkqhkiG9w0BAQEFAASCBukwggblAgEAAoIBgQDOV7GpL656zYBH
 WpFDnFEwSBWZ187FzX9evSlz5kg8bLJ55yDDcjSp5PwWlcocMw52fTMf+QEYuSn3
@@ -875,21 +878,25 @@ setenv FRIENDLY_NAME "I'M MASTA GAKOD"
 remote $IPADDR $OpenVPN_TCP_Port
 http-proxy $IPADDR $Squid_Port1
 http-proxy-retry
-dev tun
 resolv-retry infinite
+route-method exe
 nobind
 persist-key
 persist-tun
-remote-cert-tls server
-verify-x509-name server_ADBtkp0yL46HLXPb name
+comp-lzo
+cipher AES-256-CBC
 auth SHA256
-auth-nocache
-cipher AES-128-CBC
-tls-client
-tls-version-min 1.2
-tls-cipher TLS-DHE-RSA-WITH-AES-128-GCM-SHA256
-setenv opt block-outside-dns
+push "redirect-gateway def1 bypass-dhcp"
 verb 3
+push-peer-info
+ping 10
+ping-restart 60
+hand-window 70
+server-poll-timeout 4
+reneg-sec 2592000
+sndbuf 0
+rcvbuf 0
+remote-cert-tls server
 key-direction 1
 <auth-user-pass>
 sam
@@ -899,10 +906,10 @@ sam
 $(cat /etc/openvpn/ca.crt)
 </ca>
 <cert>
-$(cat /etc/openvpn/server_ADBtkp0yL46HLXPb.crt)
+$(cat /etc/openvpn/server.crt)
 </cert>
 <key>
-$(cat /etc/openvpn/server_ADBtkp0yL46HLXPb.key)
+$(cat /etc/openvpn/server.key)
 </key>
 <tls-auth>
 $(cat /etc/openvpn/tls-auth.key)
@@ -944,10 +951,10 @@ sam
 $(cat /etc/openvpn/ca.crt)
 </ca>
 <cert>
-$(cat /etc/openvpn/server_ADBtkp0yL46HLXPb.crt)
+$(cat /etc/openvpn/server.crt)
 </cert>
 <key>
-$(cat /etc/openvpn/server_ADBtkp0yL46HLXPb.key)
+$(cat /etc/openvpn/server.key)
 </key>
 <tls-auth>
 $(cat /etc/openvpn/tls-auth.key)
