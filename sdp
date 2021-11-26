@@ -250,7 +250,7 @@ dev tun
 dev-type tun
 sndbuf 0
 rcvbuf 0
-# crl-verify crl.pem
+crl-verify crl.pem
 ca ca.crt
 cert server.crt
 key server.key
@@ -284,7 +284,7 @@ proto udp
 dev tun
 sndbuf 0
 sndbuf 0
-# crl-verify crl.pem
+crl-verify crl.pem
 ca ca.crt
 key server.key
 cert server.crt
