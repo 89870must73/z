@@ -282,30 +282,34 @@ cat <<'myOpenVPNconf2' > /etc/openvpn/server_udp.conf
 port OVPNUDP
 proto udp
 dev tun
-ca /etc/openvpn/ca.crt
-cert /etc/openvpn/server.crt
-key /etc/openvpn/server.key
-dh /etc/openvpn/dh2048.pem
-verify-client-cert none
-username-as-common-name
-key-direction 0
-plugin /etc/openvpn/plugins/openvpn-plugin-auth-pam.so login
-server 10.201.0.0 255.255.0.0
+dev-type tun
+sndbuf 0
+rcvbuf 0
+crl-verify crl.pem
+ca ca.crt
+cert server.crt
+key server.key
+tls-auth tls-auth.key 0
+dh dh.pem
+topology subnet
+server 10.9.0.0 255.255.255.0
 ifconfig-pool-persist ipp.txt
-push "route-method exe"
-push "route-delay 2"
+push "redirect-gateway def1 bypass-dhcp"
+push "dhcp-option DNS 8.8.8.8"
+push "dhcp-option DNS 8.8.4.4"
 keepalive 10 120
+cipher AES-256-CBC
+auth SHA256
 comp-lzo
 user nobody
 group nogroup
-persist-key
 persist-tun
 status openvpn-status.log
-log udp.log
 verb 2
-ncp-disable
-cipher none
-auth none
+mute 3
+plugin /etc/openvpn/openvpn-auth-pam.so /etc/pam.d/login
+verify-client-cert none
+username-as-common-name
 myOpenVPNconf2
 
  cat <<'EOF7'> /etc/openvpn/ca.crt
@@ -898,23 +902,26 @@ dev tun
 proto udp
 setenv FRIENDLY_NAME "Mac Quan Inc - VPN UDP"
 remote $IPADDR $OpenVPN_UDP_Port
-remote-cert-tls server
 resolv-retry infinite
-float
-fast-io
+route-method exe
 nobind
 persist-key
-persist-remote-ip
 persist-tun
-auth-user-pass
-auth none
-auth-nocache
-cipher none
 comp-lzo
-redirect-gateway def1
-setenv CLIENT_CERT 0
-reneg-sec 0
-verb 1
+cipher AES-256-CBC
+auth SHA256
+push "redirect-gateway def1 bypass-dhcp"
+verb 3
+push-peer-info
+ping 10
+ping-restart 60
+hand-window 70
+server-poll-timeout 4
+reneg-sec 2592000
+sndbuf 0
+rcvbuf 0
+remote-cert-tls server
+key-direction 1
 <auth-user-pass>
 sam
 sam
@@ -923,11 +930,14 @@ sam
 $(cat /etc/openvpn/ca.crt)
 </ca>
 <cert>
-$(cat /etc/openvpn/server.crt)
+$(cat /etc/openvpn/client.crt)
 </cert>
 <key>
-$(cat /etc/openvpn/server.key)
+$(cat /etc/openvpn/client.key)
 </key>
+<tls-auth>
+$(cat /etc/openvpn/tls-auth.key)
+</tls-auth>
 EOF162
 
 cat <<EOF17> /var/www/openvpn/ssl.ovpn
