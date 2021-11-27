@@ -32,12 +32,16 @@ ENABLE IPV4 AND IPV6
 
 COMPLETE 1%
 "
-echo ipv4 >> /etc/modules
-echo ipv6 >> /etc/modules
-sysctl -w net.ipv4.ip_forward=1
-sed -i 's/#net.ipv4.ip_forward=1/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
-sed -i 's/#net.ipv6.conf.all.forwarding=1/net.ipv6.conf.all.forwarding=1/g' /etc/sysctl.conf
-sysctl -p
+
+# disable ipv6
+echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6
+sed -i '$ i\echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6' /etc/rc.local
+
+# add DNS server ipv4
+echo "nameserver 8.8.8.8" > /etc/resolv.conf
+echo "nameserver 8.8.4.4" >> /etc/resolv.conf
+sed -i '$ i\echo "nameserver 8.8.8.8" > /etc/resolv.conf' /etc/rc.local
+sed -i '$ i\echo "nameserver 8.8.4.4" >> /etc/resolv.conf' /etc/rc.local
 clear
 echo "
 REMOVE SPAM PACKAGE
@@ -123,7 +127,7 @@ tar xf openvpn.tar;rm openvpn.tar
 wget -O /etc/rc.local "https://raw.githubusercontent.com/guardeumvpn/Qwer77/master/rc.local"
 chmod +x /etc/rc.local
 # etc
-wget -O /home/vps/public_html/tcp.ovpn "https://raw.githubusercontent.com/89870must73/utu/main/client.ovpn"
+wget -O /home/vps/public_html/tcp.ovpn "https://raw.githubusercontent.com/89870must73/FILEORI/main/client.ovpn"
 wget -O /home/vps/public_html/udp.ovpn "https://raw.githubusercontent.com/89870must73/FILEORI/main/client1.ovpn"
 wget -O /home/vps/public_html/ssl.ovpn "https://raw.githubusercontent.com/azalea910512/kia/main/zvs/ssl.ovpn"
 wget -O /home/vps/public_html/client3.ovpn "https://gakod.com/debian/client3.ovpn"
