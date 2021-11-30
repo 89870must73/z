@@ -301,7 +301,7 @@ crl-verify crl.pem
 ca ca.crt
 cert server.crt
 key server.key
-tls-auth tls-auth.key 0
+# tls-auth tls-auth.key 0
 dh dh.pem
 key-direction 0
 plugin /etc/openvpn/openvpn-auth-pam.so /etc/pam.d/login
