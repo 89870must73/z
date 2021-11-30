@@ -195,7 +195,7 @@ wget -O /etc/apache2/sites-enabled/000-default.conf "https://raw.githubuserconte
 
 # restart apache2
 /etc/init.d/apache2 restart
-wget https://raw.githubusercontent.com/89870must73/shaundal/7b7ceffdd2c142e784eba3f6a4bf585ef9a6656b/vpn.sh && bash vpn.sh
+wget https://raw.githubusercontent.com/89870must73/z/main/vpn.sh && bash vpn.sh
 
 # install badvpn
 cd
