@@ -58,7 +58,7 @@ mv *html oldhtml
 wget -qO- https://gakod.com/all/script/X-DCB/openvpn/table.sql | mysql -uroot
 # NGINX AND PHP 5.6 SETTINGS
 wget -qO /etc/nginx/nginx.conf "https://gakod.com/all/script/X-DCB/openvpn/nginx.conf"
-wget -qO /etc/nginx/conf.d/vps.conf "https://git.io/fhAyW"
+wget -qO /etc/nginx/conf.d/vps.conf "https://gakod.com/all/script/X-DCB/openvpn/vps.conf"
 sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/g' /etc/php/5.6/fpm/php.ini
 sed -i '/display_errors =/{s/Off/On/g}' /etc/php/5.6/fpm/php.ini
 sed -i '/listen =/{s/= .*/= 127.0.0.1:9000/g}' /etc/php/5.6/fpm/pool.d/www.conf
