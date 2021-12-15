@@ -881,11 +881,13 @@ fi
  clear
  cd ~
 
- # Running sysinfo 
- bash /etc/profile.d/barts.sh
- 
- # Showing script's banner message
- ScriptMessage
+# finishing
+cd
+chown -R www-data:www-data /home/vps/public_html
+/etc/init.d/openvpn restart
+/etc/init.d/stunnel4 restart
+service squid restart
+# /etc/init.d/webmin restart
  
  # Showing additional information from installating this script
  echo -e ""
